@@ -188,7 +188,7 @@ header {
   td.income {
     color: #12a454;
   }
-  td.expanse {
+  td.expense {
     color: var(--red);
   }
 }
@@ -211,6 +211,7 @@ header {
     position: relative;
     background-color: #f0f2f5;
     padding: 2.4rem;
+    margin: 0 10px;
   }
 }
 
