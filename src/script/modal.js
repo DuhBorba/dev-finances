@@ -1,11 +1,11 @@
 const modalElement = document.querySelector(".modal-overlay");
 
 const Modal = {
-  open() {
+  open(event) {
     event.preventDefault();
     modalElement.classList.add("active");
   },
-  close() {
+  close(event) {
     event.preventDefault();
     modalElement.classList.remove("active");
   },
