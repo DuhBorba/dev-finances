@@ -15,7 +15,7 @@ modalElement.addEventListener("click", (event) => {
 
 const Storage = {
   get() {
-    return JSON.parse(localStorage.getItem("")) || [];
+    return JSON.parse(localStorage.getItem("dev.financers:transactions")) || [];
   },
 
   set(transactions) {
@@ -88,7 +88,7 @@ const DOM = {
         <td class="${CSSclass}">${amount}</td>
         <td class="date">${transaction.date}</td>
         <td>
-          <img src="assets/minus.svg" alt="Remover Transação" onclick="Transaction.remove(${index})" />
+          <img class="remove-icon" src="assets/minus.svg" alt="Remover Transação" onclick="Transaction.remove(${index})" />
         </td>
       </tr>
     `;
@@ -115,9 +115,9 @@ const DOM = {
 
 const Utils = {
   formatAmount(value) {
-    value = Number(value.replace(/\,\./g, "")) * 100;
+    value = value * 100;
 
-    return value;
+    return Math.round(value);
   },
 
   formatDate(date) {
