@@ -1,15 +1,37 @@
 // Global
 
-$color-dark-blue: #363f5f;
+$color-background: #f0f2f5;
+$color-cards: #ffffff;
 $color-green: #49aa26;
 $color-light-green: #3dd705;
+$color-dark-blue: #363f5f;
 $color-red: #e92929;
+$color-font: #000000;
+$color-font-table: #969cb3;
+$color-green-table: #12a454;
+
+.dark-theme{
+  $color-background: #222222;
+  $color-cards: #343434;
+  $color-red: #ff3737;
+  $color-dark-blue: #ffffff;
+  $color-font: #ffffff;
+  $color-font-table: #ffffff;
+  $color-green-table: #0de56f;
+  $color-green: #3e8d21;
+  $color-light-green: #2c6417;
+}
 
 :root {
+  --background: #{$color-background};
+  --cards: #{$color-cards};
   --dark-blue: #{$color-dark-blue};
   --green: #{$color-green};
   --light-green: #{$color-light-green};
   --red: #{$color-red};
+  --font: #{$color-font};
+  --font-table: #{$color-font-table};
+  --green-table: #{$color-green-table};
 }
 
 * {
@@ -23,7 +45,7 @@ html {
 }
 
 body {
-  background: #f0f2f5;
+  background: var(--background);
   font-family: "Poppins", sans-serif;
 }
 
@@ -49,7 +71,7 @@ body {
 h2 {
   margin-top: 3.2rem;
   margin-bottom: 0.8rem;
-  color: var(--color-dark-blue);
+  color: var(--dark-blue);
   font-weight: normal;
 }
 
@@ -69,7 +91,7 @@ button {
   height: 50px;
   border: none;
   border-radius: 0.25rem;
-  color: #fff;
+  color: var(--font);
   background-color: var(--green);
   padding: 0;
   cursor: pointer;
@@ -105,7 +127,7 @@ header {
   text-align: center;
   #logo {
     font-weight: 100;
-    color: #fff;
+    color: var(--font);
   }
 }
 
@@ -114,7 +136,7 @@ header {
 #balance {
   margin-top: -8rem;
   h2 {
-    color: #fff;
+    color: var(--font);
     margin-top: 0;
   }
 }
@@ -122,11 +144,11 @@ header {
 // Cards
 
 .card {
-  background: #fff;
+  background: var(--cards);
   padding: 1.5rem 2rem;
   border-radius: 0.25rem;
   margin-bottom: 2rem;
-  color: var(--color-dark-blue);
+  color: var(--dark-blue);
   h3 {
     display: flex;
     align-items: center;
@@ -157,7 +179,7 @@ header {
 #data-table {
   width: 100%;
   border-spacing: 0 0.5rem;
-  color: #969cb3;
+  color: var(--font-table);
   thead tr th:first-child,
   tbody tr td:first-child {
     border-radius: 0.25rem 0 0 0.25rem;
@@ -169,7 +191,7 @@ header {
   thead th {
     font-weight: normal;
     text-align: left;
-    background: #fff;
+    background: var(--cards);
     padding: 1rem 2rem;
   }
   tbody tr {
@@ -179,14 +201,14 @@ header {
     }
   }
   tbody td {
-    background: #fff;
+    background: var(--cards);
     padding: 1rem 2rem;
   }
   td.description {
-    color: var(--color-dark-blue);
+    color: var(--dark-blue);
   }
   td.income {
-    color: #12a454;
+    color: var(--green-table);
   }
   td.expense {
     color: var(--red);
@@ -212,7 +234,7 @@ header {
   z-index: 1000;
   .modal {
     position: relative;
-    background-color: #f0f2f5;
+    background-color: var(--background);
     padding: 2.4rem;
     margin: 0 10px;
   }
@@ -235,10 +257,13 @@ header {
     border: none;
     border-radius: 0.2rem;
     padding: 0.8rem;
+    background: var(--cards);
+    color: var(--font);
   }
   .input-group {
     margin-top: 0.8rem;
     .help {
+      color: var(--font);
       opacity: 0.4;
     }
   }
@@ -258,7 +283,7 @@ header {
 footer {
   text-align: center;
   padding: 4rem 0 2rem;
-  color: var(--color-dark-blue);
+  color: var(--dark-blue);
   opacity: 0.6;
 }
 
