@@ -10,18 +10,6 @@ $color-font: #000000;
 $color-font-table: #969cb3;
 $color-green-table: #12a454;
 
-.dark-theme{
-  $color-background: #222222;
-  $color-cards: #343434;
-  $color-red: #ff3737;
-  $color-dark-blue: #ffffff;
-  $color-font: #ffffff;
-  $color-font-table: #ffffff;
-  $color-green-table: #0de56f;
-  $color-green: #3e8d21;
-  $color-light-green: #2c6417;
-}
-
 :root {
   --background: #{$color-background};
   --cards: #{$color-cards};
@@ -32,6 +20,18 @@ $color-green-table: #12a454;
   --font: #{$color-font};
   --font-table: #{$color-font-table};
   --green-table: #{$color-green-table};
+}
+
+.dark-theme {
+  --background: #222222;
+  --cards: #343434;
+  --red: #ff3737;
+  --dark-blue: #ffffff;
+  --font: #ffffff;
+  --font-table: #ffffff;
+  --green-table: #0de56f;
+  --green: #3e8d21;
+  --light-green: #2c6417;
 }
 
 * {
@@ -131,6 +131,55 @@ header {
   }
 }
 
+// Check Dark Mode
+
+.check-dark-mode {
+  position: absolute;
+  top: 10px;
+  right: 5px;
+  z-index: 9999;
+  span {
+    font-size: 0.6rem;
+    color: #fff;
+  }
+  #switch {
+    height: 0;
+    width: 0;
+    visibility: hidden;
+  }
+  label {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 45px;
+    height: 21px;
+    background: var(--background);
+    margin: 0 auto;
+    border-radius: 100px;
+    cursor: pointer;
+    text-indent: -9999px;
+  }
+  label:after {
+    content: "";
+    background: var(--font);
+    position: absolute;
+    top: 3px;
+    left: 4px;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    transition: 0.3s;
+  }
+  input:checked + label {
+    background: var(--background);
+  }
+  input:checked + label:after {
+    left: calc(100% - 5px);
+    transform: translateX(-100%);
+  }
+}
+
 // Balance
 
 #balance {
@@ -213,7 +262,7 @@ header {
   td.expense {
     color: var(--red);
   }
-  td .remove-icon{
+  td .remove-icon {
     cursor: pointer;
   }
 }
@@ -297,5 +346,12 @@ footer {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 2rem;
+  }
+  .check-dark-mode {
+    top: 10px;
+    right: 30px;
+    span {
+      font-size: 0.8rem;
+    }
   }
 }

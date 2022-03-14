@@ -15,14 +15,29 @@ modalElement.addEventListener("click", (event) => {
 
 const Storage = {
   get() {
-    return JSON.parse(localStorage.getItem("dev.financers:transactions")) || [];
+    return JSON.parse(localStorage.getItem("dev.finances:transactions")) || [];
   },
 
   set(transactions) {
     localStorage.setItem(
-      "dev.financers:transactions",
+      "dev.finances:transactions",
       JSON.stringify(transactions)
     );
+  },
+
+  getDarkMode() {
+    return localStorage.getItem("dev.finances:theme");
+  },
+
+  setDarkMode() {
+    localStorage.setItem("dev.finances:theme", "dark");
+    DarkMode.body.classList.add("dark-theme");
+    DarkMode.button.setAttribute("checked", "true");
+  },
+
+  removeDarkMode() {
+    localStorage.removeItem("dev.finances:theme");
+    DarkMode.body.classList.remove("dark-theme");
   },
 };
 
@@ -191,14 +206,32 @@ const Form = {
       Form.validateFields();
       const transaction = Form.formatValues();
 
-      console.log(transaction);
-
       Transaction.add(transaction);
 
       Form.clearFields();
       Modal.toggle(event);
     } catch (err) {
       alert(err.message);
+    }
+  },
+};
+
+const DarkMode = {
+  body: document.querySelector("body"),
+  button: document.querySelector("#switch"),
+  click() {
+    if (DarkMode.button.checked) {
+      Storage.setDarkMode();
+    } else {
+      Storage.removeDarkMode();
+    }
+  },
+
+  init() {
+    if (Storage.getDarkMode() == "dark") {
+      Storage.setDarkMode();
+    } else {
+      Storage.removeDarkMode();
     }
   },
 };
@@ -212,6 +245,7 @@ const App = {
     DOM.updateBalance();
 
     Storage.set(Transaction.all);
+    DarkMode.init();
   },
 
   reload() {
