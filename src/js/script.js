@@ -1,17 +1,54 @@
-const modalElement = document.querySelector(".modal-overlay");
-
 const Modal = {
+  modalElement: document.querySelector(".modal-overlay"),
   toggle(event) {
     event.preventDefault();
-    modalElement.classList.toggle("active");
+    Modal.modalElement.classList.toggle("active");
   },
 };
 
-modalElement.addEventListener("click", (event) => {
-  if (event.target == modalElement) {
+Modal.modalElement.addEventListener("click", (event) => {
+  if (event.target == Modal.modalElement) {
     Modal.toggle(event);
   }
 });
+
+const ModalAlert = {
+  modalAlert: document.querySelector(".modal-overlay-alert"),
+  btnAlert: document.querySelector(".btn-alert"),
+  btnCancelAlert: document.querySelector(".cancel-alert"),
+
+  open(event) {
+    event.preventDefault();
+    ModalAlert.modalAlert.classList.add("active");
+  },
+
+  functionalitiesModal(index) {
+    ModalAlert.btnAlert.addEventListener("click", deleteTransaction);
+    ModalAlert.btnCancelAlert.addEventListener("click", closeAlert);
+    function deleteTransaction() {
+      Transaction.remove(index);
+      closeAlert();
+    }
+    function closeAlert() {
+      event.preventDefault();
+      ModalAlert.modalAlert.classList.remove("active");
+      ModalAlert.btnAlert.removeEventListener("click", deleteTransaction);
+      ModalAlert.btnCancelAlert.removeEventListener("click", closeAlert);
+    }
+    ModalAlert.modalAlert.addEventListener("click", (event) => {
+      if (event.target == ModalAlert.modalAlert) {
+        ModalAlert.modalAlert.classList.remove("active");
+        ModalAlert.btnAlert.removeEventListener("click", deleteTransaction);
+        ModalAlert.btnCancelAlert.removeEventListener("click", closeAlert);
+      }
+    });
+  },
+
+  init(event, index) {
+    ModalAlert.open(event);
+    ModalAlert.functionalitiesModal(index);
+  },
+};
 
 const Storage = {
   get() {
@@ -103,7 +140,7 @@ const DOM = {
         <td class="${CSSclass}">${amount}</td>
         <td class="date">${transaction.date}</td>
         <td>
-          <img class="remove-icon" src="assets/minus.svg" alt="Remover Transação" onclick="Transaction.remove(${index})" />
+          <img class="remove-icon" src="assets/minus.svg" alt="Remover Transação" onclick="ModalAlert.init(event, ${index})" />
         </td>
       </tr>
     `;
