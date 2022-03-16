@@ -1,5 +1,5 @@
 const ModalRegister = {
-  modalElement: document.querySelector(".modal-overlay"),
+  modalElement: document.querySelector("#register"),
   open(event) {
     event.preventDefault();
     ModalRegister.modalElement.classList.add("active");
@@ -34,7 +34,7 @@ const ModalRegister = {
 };
 
 const ModalAlert = {
-  modalElement: document.querySelector(".modal-overlay-alert"),
+  modalElement: document.querySelector("#alert"),
   idUser: 0,
 
   open(event) {
@@ -74,8 +74,60 @@ const ModalAlert = {
     ModalAlert.close(event);
   },
 
-  init(event, index) {
-    ModalAlert.idUser = index;
+  init(event, id) {
+    ModalAlert.idUser = id;
+
+    ModalAlert.open(event);
+    ModalAlert.addEventModal();
+  },
+};
+
+const ModalEdit = {
+  modalElement: document.querySelector("#edit"),
+  idUser: 0,
+
+  open(event) {
+    event.preventDefault();
+    ModalAlert.modalElement.classList.add("active");
+  },
+
+  close(event) {
+    event.preventDefault();
+    ModalAlert.modalElement.classList.remove("active");
+    ModalAlert.removeEventModal();
+  },
+
+  addEventModal() {
+    ModalAlert.modalElement.addEventListener(
+      "click",
+      ModalAlert.clickOutsideBox
+    );
+  },
+
+  removeEventModal() {
+    ModalAlert.modalElement.removeEventListener(
+      "click",
+      ModalAlert.clickOutsideBox
+    );
+  },
+
+  clickOutsideBox(event) {
+    if (event.target == ModalAlert.modalElement) {
+      ModalAlert.modalElement.classList.remove("active");
+      ModalAlert.removeEventModal();
+    }
+  },
+
+  getDataTransaction(event) {
+    Transaction.all.filter(transaction => {
+      transaction.id == ModalAlert.idUser;
+    })
+  },
+
+  init(event, id) {
+    ModalAlert.idUser = id;
+
+    Form.putData(ModalAlert.idUser);
 
     ModalAlert.open(event);
     ModalAlert.addEventModal();
@@ -123,6 +175,16 @@ const Transaction = {
     Transaction.all = Transaction.all.filter(
       (transaction) => transaction.id !== index
     );
+
+    App.reload();
+  },
+  
+  replace(trasaction, id) {
+    const dataEdited = Transaction.all.filter(transaction => {
+      if(transaction.id == id){
+        
+      }
+    })
 
     App.reload();
   },
@@ -174,6 +236,7 @@ const DOM = {
         <td class="${CSSclass}">${amount}</td>
         <td class="date">${transaction.date}</td>
         <td>
+          <img class="remove-icon" src="assets/edit.svg" alt="Editar Transação" onclick="ModalEdit.init(event, ${transaction.id})" />
           <img class="remove-icon" src="assets/minus.svg" alt="Remover Transação" onclick="ModalAlert.init(event, ${transaction.id})" />
         </td>
       </tr>
@@ -292,6 +355,42 @@ const Form = {
       alert(err.message);
     }
   },
+
+  getDataTransaction(id) {
+    Transaction.all.filter(transaction => {
+      return transaction.id == id;
+    })
+  },
+
+  putData(id){
+    const data = getDataTransaction(id);
+
+    description.value = data.description;
+    amount.value = data.amount;
+    date.value = data.date;
+  },
+
+  dataEdited(id){
+    const data = getDataTransaction(id)
+
+    Transaction.all.id[id]
+  },
+
+  edit(event){
+    event.preventDefault();
+
+    try {
+      Form.validateFields();
+      const transaction = Form.formatValues();
+
+      Transaction.replace(transaction, id);
+
+      Form.clearFields();
+      ModalRegister.close(event);
+    } catch (err) {
+      alert(err.message);
+    }
+  }
 };
 
 const DarkMode = {
@@ -333,3 +432,22 @@ const App = {
 };
 
 App.init();
+
+
+// Lógica para substituir no array
+
+const a = Transaction.all.findIndex(transaction => {
+  return transaction.id === 1;
+})
+
+const b = Transaction.all
+
+b.splice(a, 1, {
+  id: 1,
+  amount: 100,
+  description: "editado",
+  date: "16/03/2022",
+})
+
+
+console.log(b)
