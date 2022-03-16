@@ -198,8 +198,16 @@ const Form = {
   amount: document.querySelector("input#amount"),
   date: document.querySelector("input#date"),
 
+  getLastId() {
+    let lastId = Transaction.all.reduce((a, b) => {
+      return Math.max(a, b.id);
+    }, 0);
+    return lastId + 1;
+  },
+
   getValues() {
     return {
+      id: Form.getLastId(),
       description: Form.description.value,
       amount: Form.amount.value,
       date: Form.date.value,
@@ -218,12 +226,13 @@ const Form = {
   },
 
   formatValues() {
-    let { description, amount, date } = Form.getValues();
+    let { id, description, amount, date } = Form.getValues();
 
     amount = Utils.formatAmount(amount);
     date = Utils.formatDate(date);
 
     return {
+      id,
       description,
       amount,
       date,
@@ -252,6 +261,8 @@ const Form = {
     }
   },
 };
+
+console.log(Form.getUltimoId());
 
 const DarkMode = {
   body: document.querySelector("body"),
