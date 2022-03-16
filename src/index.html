@@ -21,7 +21,7 @@
       <img src="./assets/logo.svg" alt="Logo Dev Finances" />
       <div class="check-dark-mode">
         <span>Light / Dark</span>
-        <input onclick="DarkMode.click()" class="container_toggle" type="checkbox" id="switch" name="mode">
+        <input onclick="DarkMode.click()" type="checkbox" id="switch" name="mode">
         <label for="switch">Light / Dark</label>
       </div>
     </header>
@@ -56,7 +56,7 @@
 
       <section id="transaction">
         <h2 class="sr-only">Transações</h2>
-        <a href="#" class="button new" onclick="Modal.toggle(event)">+ Nova Transação</a>
+        <a href="#" class="button new" onclick="ModalRegister.open(event)">+ Nova Transação</a>
 
         <table id="data-table">
           <thead>
@@ -105,7 +105,7 @@
               <input type="date" name="date" id="date" />
             </div>
             <div class="input-group actions">
-              <a href="#" class="button cancel" onclick="Modal.toggle(event)">Cancelar</a>
+              <a href="#" class="button cancel" onclick="ModalRegister.close(event)">Cancelar</a>
               <button>Salvar</button>
             </div>
           </form>
@@ -118,8 +118,8 @@
         <div id="form">
           <h2>Realmente deseja excluir essa transação?</h2>
             <div class="input-group actions">
-              <a href="#" class="button cancel cancel-alert">Cancelar</a>
-              <a href="#" class="btn-alert">Confirmar</a>
+              <a href="#" class="button cancel" onclick="ModalAlert.close(event)">Cancelar</a>
+              <a href="#" class="btn-alert" onclick="ModalAlert.deleteTransaction(event)">Confirmar</a>
             </div>
         </div>
       </div>

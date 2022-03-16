@@ -1,52 +1,84 @@
-const Modal = {
+const ModalRegister = {
   modalElement: document.querySelector(".modal-overlay"),
-  toggle(event) {
+  open(event) {
     event.preventDefault();
-    Modal.modalElement.classList.toggle("active");
+    ModalRegister.modalElement.classList.add("active");
+    ModalRegister.addEventModal();
+  },
+
+  close(event) {
+    event.preventDefault();
+    ModalRegister.modalElement.classList.remove("active");
+    ModalRegister.removeEventModal();
+  },
+
+  addEventModal() {
+    ModalRegister.modalElement.addEventListener(
+      "click",
+      ModalRegister.clickOutsideBox
+    );
+  },
+
+  removeEventModal() {
+    ModalRegister.modalElement.removeEventListener(
+      "click",
+      ModalRegister.clickOutsideBox
+    );
+  },
+
+  clickOutsideBox(event) {
+    if (event.target == ModalRegister.modalElement) {
+      ModalRegister.close(event);
+    }
   },
 };
 
-Modal.modalElement.addEventListener("click", (event) => {
-  if (event.target == Modal.modalElement) {
-    Modal.toggle(event);
-  }
-});
-
 const ModalAlert = {
-  modalAlert: document.querySelector(".modal-overlay-alert"),
-  btnAlert: document.querySelector(".btn-alert"),
-  btnCancelAlert: document.querySelector(".cancel-alert"),
+  modalElement: document.querySelector(".modal-overlay-alert"),
+  idUser: 0,
 
   open(event) {
     event.preventDefault();
-    ModalAlert.modalAlert.classList.add("active");
+    ModalAlert.modalElement.classList.add("active");
   },
 
-  functionalitiesModal(index) {
-    ModalAlert.btnAlert.addEventListener("click", deleteTransaction);
-    ModalAlert.btnCancelAlert.addEventListener("click", closeAlert);
-    function deleteTransaction() {
-      Transaction.remove(index);
-      closeAlert();
+  close(event) {
+    event.preventDefault();
+    ModalAlert.modalElement.classList.remove("active");
+    ModalAlert.removeEventModal();
+  },
+
+  addEventModal() {
+    ModalAlert.modalElement.addEventListener(
+      "click",
+      ModalAlert.clickOutsideBox
+    );
+  },
+
+  removeEventModal() {
+    ModalAlert.modalElement.removeEventListener(
+      "click",
+      ModalAlert.clickOutsideBox
+    );
+  },
+
+  clickOutsideBox(event) {
+    if (event.target == ModalAlert.modalElement) {
+      ModalAlert.modalElement.classList.remove("active");
+      ModalAlert.removeEventModal();
     }
-    function closeAlert() {
-      event.preventDefault();
-      ModalAlert.modalAlert.classList.remove("active");
-      ModalAlert.btnAlert.removeEventListener("click", deleteTransaction);
-      ModalAlert.btnCancelAlert.removeEventListener("click", closeAlert);
-    }
-    ModalAlert.modalAlert.addEventListener("click", (event) => {
-      if (event.target == ModalAlert.modalAlert) {
-        ModalAlert.modalAlert.classList.remove("active");
-        ModalAlert.btnAlert.removeEventListener("click", deleteTransaction);
-        ModalAlert.btnCancelAlert.removeEventListener("click", closeAlert);
-      }
-    });
+  },
+
+  deleteTransaction(event) {
+    Transaction.remove(ModalAlert.idUser);
+    ModalAlert.close(event);
   },
 
   init(event, index) {
+    ModalAlert.idUser = index;
+
     ModalAlert.open(event);
-    ModalAlert.functionalitiesModal(index);
+    ModalAlert.addEventModal();
   },
 };
 
@@ -88,7 +120,9 @@ const Transaction = {
   },
 
   remove(index) {
-    Transaction.all.splice(index, 1);
+    Transaction.all = Transaction.all.filter(
+      (transaction) => transaction.id !== index
+    );
 
     App.reload();
   },
@@ -140,7 +174,7 @@ const DOM = {
         <td class="${CSSclass}">${amount}</td>
         <td class="date">${transaction.date}</td>
         <td>
-          <img class="remove-icon" src="assets/minus.svg" alt="Remover Transação" onclick="ModalAlert.init(event, ${index})" />
+          <img class="remove-icon" src="assets/minus.svg" alt="Remover Transação" onclick="ModalAlert.init(event, ${transaction.id})" />
         </td>
       </tr>
     `;
@@ -199,9 +233,7 @@ const Form = {
   date: document.querySelector("input#date"),
 
   getLastId() {
-    let lastId = Transaction.all.reduce((a, b) => {
-      return Math.max(a, b.id);
-    }, 0);
+    let lastId = Transaction.all.reduce((a, b) => Math.max(a, b.id), 0);
     return lastId + 1;
   },
 
@@ -255,14 +287,12 @@ const Form = {
       Transaction.add(transaction);
 
       Form.clearFields();
-      Modal.toggle(event);
+      ModalRegister.close(event);
     } catch (err) {
       alert(err.message);
     }
   },
 };
-
-console.log(Form.getUltimoId());
 
 const DarkMode = {
   body: document.querySelector("body"),
