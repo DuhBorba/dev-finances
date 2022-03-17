@@ -242,6 +242,17 @@ header {
   width: 100%;
 }
 
+#search{
+  font-family: "Poppins", sans-serif;
+  width: 100%;
+  color: var(--font);
+  background: var(--cards);
+  border: none;
+  border-radius: .25rem;
+  padding: 1rem 2rem;
+  outline: none;
+}
+
 #data-table {
   width: 100%;
   border-spacing: 0 0.5rem;
@@ -281,6 +292,9 @@ header {
   }
   td .remove-icon {
     cursor: pointer;
+  }
+  .not-found{
+    padding: 1rem 2rem;
   }
 }
 

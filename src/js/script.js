@@ -98,10 +98,7 @@ const ModalEdit = {
   },
 
   addEventModal() {
-    ModalEdit.modalElement.addEventListener(
-      "click",
-      ModalEdit.clickOutsideBox
-    );
+    ModalEdit.modalElement.addEventListener("click", ModalEdit.clickOutsideBox);
   },
 
   removeEventModal() {
@@ -158,26 +155,26 @@ const Storage = {
 
 const Transaction = {
   all: Storage.get(),
+  filtered: Storage.get(),
 
   add(transaction) {
     Transaction.all.push(transaction);
 
     App.reload();
+    Search.verifyFilter();
   },
 
-  remove(index) {
+  remove(id) {
     Transaction.all = Transaction.all.filter(
-      (transaction) => transaction.id !== index
+      (transaction) => transaction.id !== id
     );
 
     App.reload();
+    Search.verifyFilter();
   },
-  
+
   replace(trasaction) {
     const index = Transaction.findIndex(trasaction.id);
-    
-    console.log(transaction);
-    console.log(index);
 
     Transaction.all.splice(index, 1, {
       id: trasaction.id,
@@ -187,14 +184,15 @@ const Transaction = {
     });
 
     App.reload();
+    Search.verifyFilter();
   },
 
   findIndex(id) {
-    return Transaction.all.findIndex(transaction => transaction.id === id);
+    return Transaction.all.findIndex((transaction) => transaction.id === id);
   },
 
   incomes() {
-    let income = Transaction.all.reduce((acc, transaction) => {
+    let income = Transaction.filtered.reduce((acc, transaction) => {
       if (transaction.amount > 0) {
         acc += transaction.amount;
       }
@@ -204,7 +202,7 @@ const Transaction = {
   },
 
   expenses() {
-    let expense = Transaction.all.reduce((acc, transaction) => {
+    let expense = Transaction.filtered.reduce((acc, transaction) => {
       if (transaction.amount < 0) {
         acc += transaction.amount;
       }
@@ -221,15 +219,23 @@ const Transaction = {
 const DOM = {
   transactionsContainer: document.querySelector("#data-table tbody"),
 
-  addTransaction(transaction, index) {
+  addTransactionNotFound() {
+    const div = document.createElement("div");
+    div.innerHTML = `
+      <p class="not-found">Nenhuma transação encontrada :(</p>
+    `;
+
+    DOM.transactionsContainer.appendChild(div);
+  },
+
+  addTransaction(transaction) {
     const tr = document.createElement("tr");
-    tr.innerHTML = DOM.innerHTMLTransaction(transaction, index);
-    tr.dataset.index = index;
+    tr.innerHTML = DOM.innerHTMLTransaction(transaction);
 
     DOM.transactionsContainer.appendChild(tr);
   },
 
-  innerHTMLTransaction(transaction, index) {
+  innerHTMLTransaction(transaction) {
     const CSSclass = transaction.amount > 0 ? "income" : "expense";
 
     const amount = Utils.formatCurrency(transaction.amount);
@@ -405,7 +411,9 @@ const FormEdit = {
   },
 
   formatValues() {
-    let { id, description, amount, date } = FormEdit.getValues(ModalEdit.idUser);
+    let { id, description, amount, date } = FormEdit.getValues(
+      ModalEdit.idUser
+    );
 
     amount = Utils.formatAmount(amount);
     date = Utils.formatDate(date);
@@ -419,8 +427,8 @@ const FormEdit = {
   },
 
   getDataTransaction(id) {
-    const data = Transaction.all.filter(transaction => {
-      if(transaction.id == id){
+    const data = Transaction.all.filter((transaction) => {
+      if (transaction.id == id) {
         return {
           id,
           description,
@@ -432,7 +440,7 @@ const FormEdit = {
     return data;
   },
 
-  putData(id){
+  putData(id) {
     const data = FormEdit.getDataTransaction(id);
 
     FormEdit.idUser = data[0].id;
@@ -441,13 +449,13 @@ const FormEdit = {
     FormEdit.date.value = Utils.formatDateEdit(data[0].date);
   },
 
-  submit(event){
+  submit(event) {
     event.preventDefault();
 
     try {
       FormEdit.validateFields();
       const transaction = FormEdit.formatValues();
-      
+
       Transaction.replace(transaction);
 
       FormEdit.clearFields();
@@ -455,7 +463,7 @@ const FormEdit = {
     } catch (err) {
       alert(err.message);
     }
-  }
+  },
 };
 
 const DarkMode = {
@@ -478,10 +486,61 @@ const DarkMode = {
   },
 };
 
+const Search = {
+  input: document.querySelector("#search"),
+
+  addEvent() {
+    Search.input.addEventListener("keyup", Search.verifyFilter);
+  },
+
+  filterTransaction() {
+    Transaction.filtered = Transaction.all.filter((transaction) => {
+      if (
+        transaction.description
+          .toLowerCase()
+          .trim()
+          .includes(Search.input.value.toLowerCase().trim())
+      ) {
+        return transaction;
+      }
+    });
+    return Transaction.filtered;
+  },
+
+  verifyFilter() {
+    if (Search.filterTransaction().length !== 0) {
+      Search.render(Search.filterTransaction());
+      DOM.updateBalance();
+    } else {
+      Search.renderNotFound();
+      DOM.updateBalance();
+    }
+  },
+
+  render(transactionFilter) {
+    DOM.clearTransactions();
+
+    transactionFilter.map((transaction) => {
+      DOM.addTransaction(transaction);
+    });
+  },
+
+  renderNotFound() {
+    DOM.clearTransactions();
+    DOM.addTransactionNotFound();
+  },
+
+  init() {
+    Search.addEvent();
+  },
+};
+
 const App = {
   init() {
-    Transaction.all.map((transaction, index) => {
-      DOM.addTransaction(transaction, index);
+    Search.init();
+
+    Transaction.all.map((transaction) => {
+      DOM.addTransaction(transaction);
     });
 
     DOM.updateBalance();
