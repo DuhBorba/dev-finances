@@ -1,34 +1,34 @@
-const ModalRegister = {
-  modalElement: document.querySelector("#register"),
+const ModalCreate = {
+  modalElement: document.querySelector("#create"),
   open(event) {
     event.preventDefault();
-    ModalRegister.modalElement.classList.add("active");
-    ModalRegister.addEventModal();
+    ModalCreate.modalElement.classList.add("active");
+    ModalCreate.addEventModal();
   },
 
   close(event) {
     event.preventDefault();
-    ModalRegister.modalElement.classList.remove("active");
-    ModalRegister.removeEventModal();
+    ModalCreate.modalElement.classList.remove("active");
+    ModalCreate.removeEventModal();
   },
 
   addEventModal() {
-    ModalRegister.modalElement.addEventListener(
+    ModalCreate.modalElement.addEventListener(
       "click",
-      ModalRegister.clickOutsideBox
+      ModalCreate.clickOutsideBox
     );
   },
 
   removeEventModal() {
-    ModalRegister.modalElement.removeEventListener(
+    ModalCreate.modalElement.removeEventListener(
       "click",
-      ModalRegister.clickOutsideBox
+      ModalCreate.clickOutsideBox
     );
   },
 
   clickOutsideBox(event) {
-    if (event.target == ModalRegister.modalElement) {
-      ModalRegister.close(event);
+    if (event.target == ModalCreate.modalElement) {
+      ModalCreate.close(event);
     }
   },
 };
@@ -88,49 +88,43 @@ const ModalEdit = {
 
   open(event) {
     event.preventDefault();
-    ModalAlert.modalElement.classList.add("active");
+    ModalEdit.modalElement.classList.add("active");
   },
 
   close(event) {
     event.preventDefault();
-    ModalAlert.modalElement.classList.remove("active");
-    ModalAlert.removeEventModal();
+    ModalEdit.modalElement.classList.remove("active");
+    ModalEdit.removeEventModal();
   },
 
   addEventModal() {
-    ModalAlert.modalElement.addEventListener(
+    ModalEdit.modalElement.addEventListener(
       "click",
-      ModalAlert.clickOutsideBox
+      ModalEdit.clickOutsideBox
     );
   },
 
   removeEventModal() {
-    ModalAlert.modalElement.removeEventListener(
+    ModalEdit.modalElement.removeEventListener(
       "click",
-      ModalAlert.clickOutsideBox
+      ModalEdit.clickOutsideBox
     );
   },
 
   clickOutsideBox(event) {
-    if (event.target == ModalAlert.modalElement) {
-      ModalAlert.modalElement.classList.remove("active");
-      ModalAlert.removeEventModal();
+    if (event.target == ModalEdit.modalElement) {
+      ModalEdit.modalElement.classList.remove("active");
+      ModalEdit.removeEventModal();
     }
   },
 
-  getDataTransaction(event) {
-    Transaction.all.filter(transaction => {
-      transaction.id == ModalAlert.idUser;
-    })
-  },
-
   init(event, id) {
-    ModalAlert.idUser = id;
+    ModalEdit.idUser = id;
 
-    Form.putData(ModalAlert.idUser);
+    FormEdit.putData(ModalEdit.idUser);
+    ModalEdit.open(event);
 
-    ModalAlert.open(event);
-    ModalAlert.addEventModal();
+    ModalEdit.addEventModal();
   },
 };
 
@@ -179,14 +173,24 @@ const Transaction = {
     App.reload();
   },
   
-  replace(trasaction, id) {
-    const dataEdited = Transaction.all.filter(transaction => {
-      if(transaction.id == id){
-        
-      }
-    })
+  replace(trasaction) {
+    const index = Transaction.findIndex(trasaction.id);
+    
+    console.log(transaction);
+    console.log(index);
+
+    Transaction.all.splice(index, 1, {
+      id: trasaction.id,
+      description: trasaction.description,
+      amount: trasaction.amount,
+      date: trasaction.date,
+    });
 
     App.reload();
+  },
+
+  findIndex(id) {
+    return Transaction.all.findIndex(transaction => transaction.id === id);
   },
 
   incomes() {
@@ -263,10 +267,21 @@ const DOM = {
 };
 
 const Utils = {
+  formatAmountEdit(value) {
+    value = value / 100;
+
+    return Math.round(value);
+  },
+
   formatAmount(value) {
     value = value * 100;
 
     return Math.round(value);
+  },
+
+  formatDateEdit(date) {
+    const splittedDate = date.split("/");
+    return `${splittedDate[2]}-${splittedDate[1]}-${splittedDate[0]}`;
   },
 
   formatDate(date) {
@@ -290,10 +305,10 @@ const Utils = {
   },
 };
 
-const Form = {
-  description: document.querySelector("input#description"),
-  amount: document.querySelector("input#amount"),
-  date: document.querySelector("input#date"),
+const FormCreate = {
+  description: document.querySelector("#create input#description"),
+  amount: document.querySelector("#create input#amount"),
+  date: document.querySelector("#create input#date"),
 
   getLastId() {
     let lastId = Transaction.all.reduce((a, b) => Math.max(a, b.id), 0);
@@ -302,15 +317,15 @@ const Form = {
 
   getValues() {
     return {
-      id: Form.getLastId(),
-      description: Form.description.value,
-      amount: Form.amount.value,
-      date: Form.date.value,
+      id: FormCreate.getLastId(),
+      description: FormCreate.description.value,
+      amount: FormCreate.amount.value,
+      date: FormCreate.date.value,
     };
   },
 
   validateFields() {
-    const { description, amount, date } = Form.getValues();
+    const { description, amount, date } = FormCreate.getValues();
     if (
       description.trim() === "" ||
       amount.trim() === "" ||
@@ -321,7 +336,7 @@ const Form = {
   },
 
   formatValues() {
-    let { id, description, amount, date } = Form.getValues();
+    let { id, description, amount, date } = FormCreate.getValues();
 
     amount = Utils.formatAmount(amount);
     date = Utils.formatDate(date);
@@ -335,58 +350,108 @@ const Form = {
   },
 
   clearFields() {
-    Form.description.value = "";
-    Form.amount.value = "";
-    Form.date.value = "";
+    FormCreate.description.value = "";
+    FormCreate.amount.value = "";
+    FormCreate.date.value = "";
   },
 
   submit(event) {
     event.preventDefault();
 
     try {
-      Form.validateFields();
-      const transaction = Form.formatValues();
+      FormCreate.validateFields();
+      const transaction = FormCreate.formatValues();
 
       Transaction.add(transaction);
 
-      Form.clearFields();
-      ModalRegister.close(event);
+      FormCreate.clearFields();
+      ModalCreate.close(event);
     } catch (err) {
       alert(err.message);
     }
   },
+};
+
+const FormEdit = {
+  idUser: 0,
+  description: document.querySelector("#edit input#description"),
+  amount: document.querySelector("#edit input#amount"),
+  date: document.querySelector("#edit input#date"),
+
+  clearFields() {
+    FormEdit.description.value = "";
+    FormEdit.amount.value = "";
+    FormEdit.date.value = "";
+  },
+
+  getValues(id) {
+    return {
+      id: id,
+      description: FormEdit.description.value,
+      amount: FormEdit.amount.value,
+      date: FormEdit.date.value,
+    };
+  },
+
+  validateFields() {
+    const { description, amount, date } = FormEdit.getValues(ModalEdit.idUser);
+    if (
+      description.trim() === "" ||
+      amount.trim() === "" ||
+      date.trim() === ""
+    ) {
+      throw new Error("Por favor, preencha todos os campos");
+    }
+  },
+
+  formatValues() {
+    let { id, description, amount, date } = FormEdit.getValues(ModalEdit.idUser);
+
+    amount = Utils.formatAmount(amount);
+    date = Utils.formatDate(date);
+
+    return {
+      id,
+      description,
+      amount,
+      date,
+    };
+  },
 
   getDataTransaction(id) {
-    Transaction.all.filter(transaction => {
-      return transaction.id == id;
-    })
+    const data = Transaction.all.filter(transaction => {
+      if(transaction.id == id){
+        return {
+          id,
+          description,
+          amount,
+          date,
+        };
+      }
+    });
+    return data;
   },
 
   putData(id){
-    const data = getDataTransaction(id);
+    const data = FormEdit.getDataTransaction(id);
 
-    description.value = data.description;
-    amount.value = data.amount;
-    date.value = data.date;
+    FormEdit.idUser = data[0].id;
+    FormEdit.description.value = data[0].description;
+    FormEdit.amount.value = Utils.formatAmountEdit(data[0].amount);
+    FormEdit.date.value = Utils.formatDateEdit(data[0].date);
   },
 
-  dataEdited(id){
-    const data = getDataTransaction(id)
-
-    Transaction.all.id[id]
-  },
-
-  edit(event){
+  submit(event){
     event.preventDefault();
 
     try {
-      Form.validateFields();
-      const transaction = Form.formatValues();
+      FormEdit.validateFields();
+      const transaction = FormEdit.formatValues();
+      
+      Transaction.replace(transaction);
 
-      Transaction.replace(transaction, id);
-
-      Form.clearFields();
-      ModalRegister.close(event);
+      FormEdit.clearFields();
+      ModalEdit.close(event);
     } catch (err) {
       alert(err.message);
     }
@@ -432,22 +497,3 @@ const App = {
 };
 
 App.init();
-
-
-// Lógica para substituir no array
-
-const a = Transaction.all.findIndex(transaction => {
-  return transaction.id === 1;
-})
-
-const b = Transaction.all
-
-b.splice(a, 1, {
-  id: 1,
-  amount: 100,
-  description: "editado",
-  date: "16/03/2022",
-})
-
-
-console.log(b)
