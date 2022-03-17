@@ -535,6 +535,30 @@ const Search = {
   },
 };
 
+const OrderBy = {
+  descricao: document.querySelector("th#descricao"),
+  valor: document.querySelector("th#valor"),
+  data: document.querySelector("th#data"),
+
+  addEvent(){
+    OrderBy.descricao.addEventListener('click', OrderBy.filterDescription);
+    OrderBy.valor.addEventListener('click', OrderBy.filterAmount);
+    OrderBy.data.addEventListener('click', OrderBy.filterDate);
+  },
+
+  filterDescription(){
+
+  },
+
+  filterAmount(){
+
+  },
+
+  filterDate(){
+    
+  }
+};
+
 const App = {
   init() {
     Search.init();
