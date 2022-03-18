@@ -161,7 +161,6 @@ const Transaction = {
     Transaction.all.push(transaction);
 
     App.reload();
-    Search.verifyFilter();
   },
 
   remove(id) {
@@ -170,7 +169,6 @@ const Transaction = {
     );
 
     App.reload();
-    Search.verifyFilter();
   },
 
   replace(trasaction) {
@@ -184,7 +182,6 @@ const Transaction = {
     });
 
     App.reload();
-    Search.verifyFilter();
   },
 
   findIndex(id) {
@@ -231,7 +228,7 @@ const DOM = {
   addTransaction(transaction) {
     const tr = document.createElement("tr");
     tr.innerHTML = DOM.innerHTMLTransaction(transaction);
-
+    
     DOM.transactionsContainer.appendChild(tr);
   },
 
@@ -283,6 +280,12 @@ const Utils = {
     value = value * 100;
 
     return Math.round(value);
+  },
+
+  convertDate(date){
+    const formatDate = Utils.formatDateEdit(date);
+
+    return new Date(formatDate);
   },
 
   formatDateEdit(date) {
@@ -532,6 +535,7 @@ const Search = {
 
   init() {
     Search.addEvent();
+    // Search.verifyFilter();
   },
 };
 
@@ -539,33 +543,149 @@ const OrderBy = {
   descricao: document.querySelector("th#descricao"),
   valor: document.querySelector("th#valor"),
   data: document.querySelector("th#data"),
+  countActiveDescription: 0,
+  countActiveAmount: 0,
+  countActiveDate: 0,
 
   addEvent(){
-    OrderBy.descricao.addEventListener('click', OrderBy.filterDescription);
-    OrderBy.valor.addEventListener('click', OrderBy.filterAmount);
-    OrderBy.data.addEventListener('click', OrderBy.filterDate);
+    OrderBy.descricao.addEventListener('click', OrderBy.initDescription);
+    OrderBy.valor.addEventListener('click', OrderBy.initAmount);
+    OrderBy.data.addEventListener('click', OrderBy.initDate);
+  },
+
+  arrowVisible(event){
+    OrderBy.resetClick(event)
+    
+    if(event.target.getAttribute('data-click') == 0){
+      OrderBy.removeClass();
+      event.target.classList.add('add-arrow-down'); 
+      
+      event.target.setAttribute('data-click', '1');
+      OrderBy.checkTypeFilter(event, 1);
+    } 
+    else if(event.target.getAttribute('data-click') == 1){
+      OrderBy.removeClass();
+      event.target.classList.add('add-arrow-up');
+
+      event.target.setAttribute('data-click', '2');
+      OrderBy.checkTypeFilter(event, 2);
+    }
+    else if(event.target.getAttribute('data-click') == 2){
+      OrderBy.removeClass();
+      
+      event.target.setAttribute('data-click', '0');
+      OrderBy.checkTypeFilter(event, 0);
+    }
+  },
+
+  resetClick(event){
+    const elements = [OrderBy.descricao, OrderBy.valor, OrderBy.data];
+
+    elements.map(element => {
+      if(element != event.target){
+        element.setAttribute('data-click', '0');
+      }
+    });
+  },
+
+  removeClass(){
+    OrderBy.descricao.classList.remove('add-arrow-up');
+    OrderBy.descricao.classList.remove('add-arrow-down');
+    OrderBy.valor.classList.remove('add-arrow-up');
+    OrderBy.valor.classList.remove('add-arrow-down');
+    OrderBy.data.classList.remove('add-arrow-up');
+    OrderBy.data.classList.remove('add-arrow-down');
+  },
+
+  checkTypeFilter(event, click){
+    switch(event.target.id){
+      case 'descricao':
+        if(click == 1){
+          OrderBy.filterDescription();
+        } 
+        else if(click == 2){
+          OrderBy.filterDescription().reverse();
+        } 
+        else if(click == 0){
+          OrderBy.filterId();
+        } 
+        App.reloadFilter();
+      break;
+      case 'valor':
+        if(click == 1){
+          OrderBy.filterAmount();
+        } 
+        else if(click == 2){
+          OrderBy.filterAmount().reverse();
+        } 
+        else if(click == 0){
+          OrderBy.filterId();
+        } 
+        App.reloadFilter();
+      break;
+      case 'data':
+        if(click == 1){
+          OrderBy.filterDate();
+        } 
+        else if(click == 2){
+          OrderBy.filterDate().reverse();
+        } 
+        else if(click == 0){
+          OrderBy.filterId();
+        } 
+        App.reloadFilter();
+      break;
+    }
   },
 
   filterDescription(){
-
+    Transaction.filtered = Transaction.filtered.sort((a, b) => a.description.localeCompare(b.description));
+    return Transaction.filtered;
   },
-
+  
   filterAmount(){
-
+    Transaction.filtered = Transaction.filtered.sort((a, b) => (a.amount < b.amount) ? 1 : -1);
+    return Transaction.filtered;
   },
 
   filterDate(){
-    
-  }
+    Transaction.filtered = Transaction.filtered.sort((a, b) => {
+      aConverted = Utils.convertDate(a.date);
+      bConverted = Utils.convertDate(b.date);
+
+      return (aConverted <= bConverted) ? 1 : -1;
+    });
+    return Transaction.filtered;
+  },
+
+  filterId(){
+    Transaction.filtered = Transaction.filtered.sort((a, b) => (a.id > b.id) ? 1 : -1);
+    return Transaction.filtered;
+  },
+
+  initDescription(event){
+    OrderBy.arrowVisible(event);
+  },
+
+  initAmount(event){
+    OrderBy.arrowVisible(event);
+  },
+
+  initDate(event){
+    OrderBy.arrowVisible(event);
+  },
+
 };
 
 const App = {
   init() {
     Search.init();
+    Search.verifyFilter();
+    OrderBy.addEvent();
 
-    Transaction.all.map((transaction) => {
-      DOM.addTransaction(transaction);
-    });
+    // Transaction.all.map((transaction) => {
+    //   DOM.addTransaction(transaction);
+    // });
 
     DOM.updateBalance();
 
@@ -573,9 +693,22 @@ const App = {
     DarkMode.init();
   },
 
+  reloadFilter(){
+    DOM.clearTransactions();
+    
+    Search.init();
+
+    Transaction.filtered.map((transaction) => {
+      DOM.addTransaction(transaction);
+    });
+
+    DOM.updateBalance();
+  },
+  
   reload() {
     DOM.clearTransactions();
     App.init();
+    Search.verifyFilter();
   },
 };
 

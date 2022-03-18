@@ -277,47 +277,39 @@ header {
   }
   th#descricao{
     cursor: pointer;
-    &:after{
-      display: none;
-      content: "";
-      background: url("../assets/arrow.svg") no-repeat center;
-      position: absolute;
-      top: 49%;
-      transform: translateY(-50%);
-      height: 10px;
-      width: 14px;
-      margin-left: 5px;
-      filter: var(--filter-image);
-    }
   }
   th#valor{
     cursor: pointer;
+  }
+  th#data{
+    cursor: pointer;
+  }
+  th.add-arrow-up{
     &:after{
-      display: none;
       content: "";
       background: url("../assets/arrow.svg") no-repeat center;
       position: absolute;
       top: 49%;
       transform: translateY(-50%);
-      height: 10px;
+      height: 14px;
       width: 14px;
       margin-left: 5px;
       filter: var(--filter-image);
     }
   }
-  th#data{
-    cursor: pointer;
+  th.add-arrow-down{
     &:after{
-      display: none;
       content: "";
       background: url("../assets/arrow.svg") no-repeat center;
       position: absolute;
       top: 49%;
       transform: translateY(-50%);
-      height: 10px;
+      height: 14px;
       width: 14px;
       margin-left: 5px;
+      margin-top: -6px;
       filter: var(--filter-image);
+      transform: rotate(180deg);
     }
   }
   tbody tr {
