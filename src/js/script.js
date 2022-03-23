@@ -243,8 +243,8 @@ const DOM = {
         <td class="${CSSclass}">${amount}</td>
         <td class="date">${transaction.date}</td>
         <td>
-          <img class="remove-icon" src="assets/edit.svg" alt="Editar Transação" onclick="ModalEdit.init(event, ${transaction.id})" />
-          <img class="remove-icon" src="assets/minus.svg" alt="Remover Transação" onclick="ModalAlert.init(event, ${transaction.id})" />
+          <img class="remove-icon" src="assets/edit.svg" alt="Editar Transação" title="Editar" onclick="ModalEdit.init(event, ${transaction.id})" />
+          <img class="remove-icon" src="assets/minus.svg" alt="Remover Transação" title="Excluir" onclick="ModalAlert.init(event, ${transaction.id})" />
         </td>
       </tr>
     `;
@@ -490,7 +490,7 @@ const DarkMode = {
 };
 
 const Search = {
-  input: document.querySelector("#search"),
+  input: document.querySelector("#search input"),
 
   addEvent() {
     Search.input.addEventListener("keyup", Search.verifyFilter);
@@ -535,7 +535,6 @@ const Search = {
 
   init() {
     Search.addEvent();
-    // Search.verifyFilter();
   },
 };
 
@@ -676,6 +675,30 @@ const OrderBy = {
   },
 
 };
+
+const FilterBy = {
+  options: document.querySelector("#options"),
+  elementInitialFinalDate: document.querySelector("#initial-final-date"),
+  elementMonthYear: document.querySelector("#month-year"),
+  elementYear: document.querySelector("#year"),
+  toggleFilter(event){
+    event.preventDefault();
+    FilterBy.options.classList.toggle("active");
+  },
+  toggleInitialFinalDate(event){
+    event.preventDefault();
+    FilterBy.elementInitialFinalDate.classList.toggle("active");
+  },
+  toggleMonthYear(event){
+    event.preventDefault();
+    FilterBy.elementMonthYear.classList.toggle("active");
+  },
+  toggleYear(event){
+    event.preventDefault();
+    FilterBy.elementYear.classList.toggle("active");
+  },
+  init(){}
+}
 
 const App = {
   init() {

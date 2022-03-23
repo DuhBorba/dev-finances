@@ -54,11 +54,47 @@
         </div>
       </section>
 
+      <h2 class="sr-only">Transações</h2>
+      <a href="#" class="button new" onclick="ModalCreate.open(event)">+ Nova Transação</a>
+      
+      <div id="search">
+        <label class="sr-only" for="search-input">Pesquisar por descrição</label>
+        <input type="text" id="search-input" placeholder="Pesquisar por descrição" aria-label="Pesquisar por descrição">
+        <div class="filter">
+          <a href="#" class="icon-search" onclick="FilterBy.toggleFilter(event)" title="Filtrar por"><img src="./assets/filter.svg" alt="Icone filter"></a>
+          <ul id="options">
+            <li onclick="FilterBy.toggleInitialFinalDate(event)">Data inicial e final</li>
+            <li class="filter-input" id="initial-final-date">
+              <label class="sr-only" for="input-initial-date">Data inicial</label>
+              <input type="text" id="input-initial-date" placeholder="Data inicial" aria-label="Data inicial">
+              <label class="sr-only" for="input-final-date">Data final</label>
+              <input type="text" id="input-final-date" placeholder="Data final" aria-label="Data final">
+            </li>
+
+            <li onclick="FilterBy.toggleMonthYear(event)">Mês e ano</li>
+            <li class="filter-input" id="month-year">
+              <label class="sr-only" for="input-month-year-1">Mês</label>
+              <input type="text" id="input-month-year-1" placeholder="Mês" aria-label="Mês">
+              <label class="sr-only" for="input-month-year-2">Ano</label>
+              <input type="text" id="input-month-year-2" placeholder="Ano" aria-label="Ano">
+            </li>
+
+            <li onclick="FilterBy.toggleYear(event)">Ano</li>
+            <li class="filter-input" id="year">
+              <label class="sr-only" for="input-year">Ano</label>
+              <input type="text" id="input-year" placeholder="Ano" aria-label="Ano">
+            </li>
+
+            <li>Entradas</li>
+
+            <li>Saídas</li>
+          </ul>
+        </div>
+        <div>
+          <a href="#" class="icon-search" onclick="" title="Limpar filtros"><img src="./assets/clear.svg" alt="Icone clear"></a>
+        </div>
+      </div>
       <section id="transaction">
-        <h2 class="sr-only">Transações</h2>
-        <a href="#" class="button new" onclick="ModalCreate.open(event)">+ Nova Transação</a>
-        
-        <input type="text" placeholder="Pesquisar por descrição" id="search" aria-label="Pesquisar por descrição">
 
         <table id="data-table">
           <thead>

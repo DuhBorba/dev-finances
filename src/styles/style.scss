@@ -9,6 +9,9 @@ $color-red: #e92929;
 $color-font: #000000;
 $color-font-table: #969cb3;
 $color-green-table: #12a454;
+$color-dropdown-ul: #969cb3;
+$color-dropdown-li: #dde0eb;
+$color-input-dropdown: #ffffff;
 $filter-image: brightness(100%) invert(0);
 
 :root {
@@ -21,6 +24,9 @@ $filter-image: brightness(100%) invert(0);
   --font: #{$color-font};
   --font-table: #{$color-font-table};
   --green-table: #{$color-green-table};
+  --drop-down-ul: #{$color-dropdown-ul};
+  --drop-down-li: #{$color-dropdown-li};
+  --input-dropdown: #{$color-input-dropdown};
   --filter-image: #{$filter-image};
 }
 
@@ -34,6 +40,9 @@ $filter-image: brightness(100%) invert(0);
   --green-table: #0de56f;
   --green: #3e8d21;
   --light-green: #2c6417;
+  --drop-down-ul: #444444;
+  --drop-down-li: #343434;
+  --input-dropdown: #262626;
   --filter-image: brightness(0%) invert(1);
 }
 
@@ -246,14 +255,69 @@ header {
 }
 
 #search{
-  font-family: "Poppins", sans-serif;
-  width: 100%;
-  color: var(--font);
-  background: var(--cards);
-  border: none;
-  border-radius: .25rem;
-  padding: 1rem 2rem;
-  outline: none;
+  display: flex;
+  align-items: center;
+  input{
+    font-family: "Poppins", sans-serif;
+    width: 100%;
+    color: var(--font);
+    background: var(--cards);
+    border: none;
+    border-radius: .25rem;
+    padding: 1rem 2rem;
+    outline: none;
+  }
+  .icon-search{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: var(--cards);
+    margin-left: 5px;
+    padding: 0.7rem 0.7rem;
+    border-radius: 0.25rem;
+    img{
+      filter: var(--filter-image);
+    }
+    &:hover{
+      opacity: .7;
+    }
+  }
+  .filter{
+    position: relative;
+    ul#options{
+      display: none;
+      position: absolute;
+      color: var(--font);
+      background: var(--drop-down-ul);
+      padding: 1rem;
+      border-radius: 0.25rem;
+      list-style: none;
+      width: 200px;
+      top: 50px;
+      right: 0;
+      z-index: 999;
+      li{
+        background: var(--drop-down-li);
+        padding: .5rem;
+        margin-bottom: 5px;
+        border-radius: .25rem;
+        cursor: pointer;
+      }
+      .filter-input{
+        display: none;
+        input{
+          background: var(--input-dropdown);
+          margin: 2.5px 0;
+        }
+      }
+      .filter-input.active{
+        display: block;
+      }
+    }
+    ul#options.active{
+      display: block;
+    }
+  }
 }
 
 #data-table {
