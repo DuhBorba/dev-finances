@@ -66,28 +66,28 @@
             <li onclick="FilterBy.toggleInitialFinalDate(event)">Data inicial e final</li>
             <li class="filter-input" id="initial-final-date">
               <label class="sr-only" for="input-initial-date">Data inicial</label>
-              <input type="text" id="input-initial-date" placeholder="Data inicial" aria-label="Data inicial">
+              <input type="text" id="input-initial-date" maxlength="10" placeholder="Data inicial" aria-label="Data inicial">
               <label class="sr-only" for="input-final-date">Data final</label>
-              <input type="text" id="input-final-date" placeholder="Data final" aria-label="Data final">
+              <input type="text" id="input-final-date" maxlength="10" placeholder="Data final" aria-label="Data final">
             </li>
 
             <li onclick="FilterBy.toggleMonthYear(event)">Mês e ano</li>
             <li class="filter-input" id="month-year">
               <label class="sr-only" for="input-month-year-1">Mês</label>
-              <input type="text" id="input-month-year-1" placeholder="Mês" aria-label="Mês">
+              <input type="text" id="input-month-year-1" maxlength="2" placeholder="Mês" aria-label="Mês">
               <label class="sr-only" for="input-month-year-2">Ano</label>
-              <input type="text" id="input-month-year-2" placeholder="Ano" aria-label="Ano">
+              <input type="text" id="input-month-year-2" maxlength="4" placeholder="Ano" aria-label="Ano">
             </li>
 
             <li onclick="FilterBy.toggleYear(event)">Ano</li>
             <li class="filter-input" id="year">
               <label class="sr-only" for="input-year">Ano</label>
-              <input type="text" id="input-year" placeholder="Ano" aria-label="Ano">
+              <input type="text" id="input-year" maxlength="4" placeholder="Ano" aria-label="Ano">
             </li>
 
-            <li>Entradas</li>
+            <li onclick="FilterBy.positiveMoney()">Entradas</li>
 
-            <li>Saídas</li>
+            <li onclick="FilterBy.negativeMoney()">Saídas</li>
           </ul>
         </div>
         <div>

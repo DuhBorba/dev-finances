@@ -270,6 +270,18 @@ const DOM = {
 };
 
 const Utils = {
+  maskDate(date){
+    date = date.replace(/\D/g,"");
+    date = date.replace(/(\d{2})(\d)/,"$1/$2");
+    date = date.replace(/(\d{2})(\d)/,"$1/$2");
+    return date;
+  },
+
+  onlyNumbers(date){
+    date = date.replace(/\D/g,"");
+    return date;
+  },
+
   formatAmountEdit(value) {
     value = value / 100;
 
@@ -681,6 +693,13 @@ const FilterBy = {
   elementInitialFinalDate: document.querySelector("#initial-final-date"),
   elementMonthYear: document.querySelector("#month-year"),
   elementYear: document.querySelector("#year"),
+
+  inputInitialDate: document.querySelector("#input-initial-date"),
+  inputFinalDate: document.querySelector("#input-final-date"),
+  inputMonthYear1: document.querySelector("#input-month-year-1"),
+  inputMonthYear2: document.querySelector("#input-month-year-2"),
+  inputYear: document.querySelector("#input-year"),
+
   toggleFilter(event){
     event.preventDefault();
     FilterBy.options.classList.toggle("active");
@@ -697,7 +716,39 @@ const FilterBy = {
     event.preventDefault();
     FilterBy.elementYear.classList.toggle("active");
   },
-  init(){}
+  positiveMoney(){
+    Transaction.filtered = Transaction.all.filter(transaction => transaction.amount > 0 ? transaction : false);
+    App.reloadFilter();
+  },
+  negativeMoney(){
+    Transaction.filtered = Transaction.all.filter(transaction => transaction.amount < 0 ? transaction : false);
+    App.reloadFilter();
+  },
+  addEventMaskDate(){
+    FilterBy.inputInitialDate.addEventListener('keyup', () => {
+      let valueMask = Utils.maskDate(FilterBy.inputInitialDate.value);
+      FilterBy.inputInitialDate.value = valueMask;
+    });
+    FilterBy.inputFinalDate.addEventListener('keyup', () => {
+      let valueMask = Utils.maskDate(FilterBy.inputFinalDate.value);
+      FilterBy.inputFinalDate.value = valueMask;
+    });
+    FilterBy.inputMonthYear1.addEventListener('keyup', () => {
+      let valueMask = Utils.onlyNumbers(FilterBy.inputMonthYear1.value);
+      FilterBy.inputMonthYear1.value = valueMask;
+    });
+    FilterBy.inputMonthYear2.addEventListener('keyup', () => {
+      let valueMask = Utils.onlyNumbers(FilterBy.inputMonthYear2.value);
+      FilterBy.inputMonthYear2.value = valueMask;
+    });
+    FilterBy.inputYear.addEventListener('keyup', () => {
+      let valueMask = Utils.onlyNumbers(FilterBy.inputYear.value);
+      FilterBy.inputYear.value = valueMask;
+    });
+  },
+  init(){
+    FilterBy.addEventMaskDate();
+  }
 }
 
 const App = {
@@ -705,6 +756,7 @@ const App = {
     Search.init();
     Search.verifyFilter();
     OrderBy.addEvent();
+    FilterBy.init();
 
     // Transaction.all.map((transaction) => {
     //   DOM.addTransaction(transaction);
