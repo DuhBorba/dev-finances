@@ -294,6 +294,10 @@ const Utils = {
     return Math.round(value);
   },
 
+  convertStringToDate(date){
+    return Utils.convertDate(Utils.formatDateEdit(date));
+  },
+
   convertDate(date){
     const formatDate = Utils.formatDateEdit(date);
 
@@ -693,6 +697,8 @@ const FilterBy = {
   elementInitialFinalDate: document.querySelector("#initial-final-date"),
   elementMonthYear: document.querySelector("#month-year"),
   elementYear: document.querySelector("#year"),
+  elementPositiveMoney: document.querySelector("#positive-money"),
+  elementNegativeMoney: document.querySelector("#negative-money"),
 
   inputInitialDate: document.querySelector("#input-initial-date"),
   inputFinalDate: document.querySelector("#input-final-date"),
@@ -717,34 +723,128 @@ const FilterBy = {
     FilterBy.elementYear.classList.toggle("active");
   },
   positiveMoney(){
-    Transaction.filtered = Transaction.all.filter(transaction => transaction.amount > 0 ? transaction : false);
+    if(!FilterBy.elementPositiveMoney.classList.contains('active-button')){
+      Transaction.filtered = Transaction.filtered.filter(transaction => transaction.amount > 0 ? transaction : false);
+      FilterBy.elementPositiveMoney.classList.add("active-button");
+      FilterBy.elementNegativeMoney.classList.remove("active-button");
+    } else {
+      FilterBy.elementPositiveMoney.classList.remove("active-button");
+      Transaction.filtered = Transaction.all;
+    }
     App.reloadFilter();
   },
   negativeMoney(){
-    Transaction.filtered = Transaction.all.filter(transaction => transaction.amount < 0 ? transaction : false);
+    if(!FilterBy.elementNegativeMoney.classList.contains('active-button')){
+      Transaction.filtered = Transaction.filtered.filter(transaction => transaction.amount < 0 ? transaction : false);
+      FilterBy.elementNegativeMoney.classList.add("active-button");
+      FilterBy.elementPositiveMoney.classList.remove("active-button");
+    } else {
+      FilterBy.elementNegativeMoney.classList.remove("active-button");
+      Transaction.filtered = Transaction.all;
+    }
     App.reloadFilter();
+  },
+  addRemoveActive(element){
+    if(!element.classList.contains('active')){
+      element.classList.add("active");
+    } else {
+      element.classList.remove("active");
+    }
   },
   addEventMaskDate(){
     FilterBy.inputInitialDate.addEventListener('keyup', () => {
       let valueMask = Utils.maskDate(FilterBy.inputInitialDate.value);
       FilterBy.inputInitialDate.value = valueMask;
+      FilterBy.initialFinalDateFilter();
+      App.reloadFilter();
     });
     FilterBy.inputFinalDate.addEventListener('keyup', () => {
       let valueMask = Utils.maskDate(FilterBy.inputFinalDate.value);
       FilterBy.inputFinalDate.value = valueMask;
+      FilterBy.initialFinalDateFilter();
+      App.reloadFilter();
     });
     FilterBy.inputMonthYear1.addEventListener('keyup', () => {
       let valueMask = Utils.onlyNumbers(FilterBy.inputMonthYear1.value);
       FilterBy.inputMonthYear1.value = valueMask;
+      FilterBy.monthYearFilter();
+      App.reloadFilter();
     });
     FilterBy.inputMonthYear2.addEventListener('keyup', () => {
       let valueMask = Utils.onlyNumbers(FilterBy.inputMonthYear2.value);
       FilterBy.inputMonthYear2.value = valueMask;
+      FilterBy.monthYearFilter();
+      App.reloadFilter();
     });
     FilterBy.inputYear.addEventListener('keyup', () => {
       let valueMask = Utils.onlyNumbers(FilterBy.inputYear.value);
       FilterBy.inputYear.value = valueMask;
+      FilterBy.yearFilter();
+      App.reloadFilter();
     });
+  },
+  initialFinalDateFilter(){
+    if(FilterBy.inputInitialDate.value.length >= 10){
+      
+      Transaction.filtered = Transaction.filtered.filter(transaction => {
+        let transactionDateFormated = Utils.convertStringToDate(transaction.date);
+        let inputDateFormated = Utils.convertStringToDate(FilterBy.inputInitialDate.value);
+        
+        return transactionDateFormated >= inputDateFormated ? transaction : false;
+      });
+    } else {
+      Transaction.filtered = Transaction.all;
+    }
+    if(FilterBy.inputFinalDate.value.length >= 10){
+      Transaction.filtered = Transaction.filtered.filter(transaction => {
+        let transactionDateFormated = Utils.convertStringToDate(transaction.date);
+        let inputDateFormated = Utils.convertStringToDate(FilterBy.inputFinalDate.value);
+        
+        return transactionDateFormated <= inputDateFormated ? transaction : false;
+      });
+    } else {
+      Transaction.filtered = Transaction.all;
+    }
+    if(FilterBy.inputInitialDate.value.length >= 10 && FilterBy.inputFinalDate.value.length >= 10){
+      Transaction.filtered = Transaction.filtered.filter(transaction => {
+        let transactionDateFormated = Utils.convertStringToDate(transaction.date);
+
+        let inputDateInitialFormated = Utils.convertStringToDate(FilterBy.inputInitialDate.value);
+        let inputDateFinalFormated = Utils.convertStringToDate(FilterBy.inputFinalDate.value);
+
+        return transactionDateFormated >= inputDateInitialFormated && transactionDateFormated <= inputDateFinalFormated ? transaction : false;
+      });
+    } else {
+      Transaction.filtered = Transaction.all;
+    }
+  },
+  monthYearFilter(){
+    if(FilterBy.inputMonthYear1.value.length >= 1 && FilterBy.inputMonthYear2.value.length >= 4){
+      let firstDay = new Date(FilterBy.inputMonthYear2.value, FilterBy.inputMonthYear1.value - 1, 1);
+      let lastDay = new Date(FilterBy.inputMonthYear2.value, FilterBy.inputMonthYear1.value, 0);
+
+      Transaction.filtered = Transaction.filtered.filter(transaction => {
+        let transactionDateFormated = Utils.convertStringToDate(transaction.date);
+
+        return transactionDateFormated >= firstDay && transactionDateFormated <= lastDay ? transaction : false
+      });
+    } else {
+      Transaction.filtered = Transaction.all;
+    }
+  },
+  yearFilter(){
+    if(FilterBy.inputYear.value.length >= 4){
+      let firstMonth = new Date(FilterBy.inputYear.value, 0, 1);
+      let lastMonth = new Date(FilterBy.inputYear.value, 12, 0);
+
+      Transaction.filtered = Transaction.filtered.filter(transaction => {
+        let transactionDateFormated = Utils.convertStringToDate(transaction.date);
+
+        return transactionDateFormated >= firstMonth && transactionDateFormated <= lastMonth ? transaction : false
+      });
+    } else {
+      Transaction.filtered = Transaction.all;
+    }
   },
   init(){
     FilterBy.addEventMaskDate();
@@ -765,8 +865,8 @@ const App = {
     DOM.updateBalance();
 
     Storage.set(Transaction.all);
-    DarkMode.init();
-  },
+      DarkMode.init();
+    },
 
   reloadFilter(){
     DOM.clearTransactions();

@@ -12,6 +12,7 @@ $color-green-table: #12a454;
 $color-dropdown-ul: #969cb3;
 $color-dropdown-li: #dde0eb;
 $color-input-dropdown: #ffffff;
+$color-dropdown-button: #525c83;
 $filter-image: brightness(100%) invert(0);
 
 :root {
@@ -27,6 +28,7 @@ $filter-image: brightness(100%) invert(0);
   --drop-down-ul: #{$color-dropdown-ul};
   --drop-down-li: #{$color-dropdown-li};
   --input-dropdown: #{$color-input-dropdown};
+  --dropdown-button-active: #{$color-dropdown-button};
   --filter-image: #{$filter-image};
 }
 
@@ -43,6 +45,7 @@ $filter-image: brightness(100%) invert(0);
   --drop-down-ul: #444444;
   --drop-down-li: #343434;
   --input-dropdown: #262626;
+  --dropdown-button-active: #202020;
   --filter-image: brightness(0%) invert(1);
 }
 
@@ -302,6 +305,10 @@ header {
         margin-bottom: 5px;
         border-radius: .25rem;
         cursor: pointer;
+      }
+      li.active-button{
+        color: #fff;
+        background: var(--dropdown-button-active);
       }
       .filter-input{
         display: none;
