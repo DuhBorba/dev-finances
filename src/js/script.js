@@ -188,8 +188,8 @@ const Transaction = {
     return Transaction.all.findIndex((transaction) => transaction.id === id);
   },
 
-  incomes() {
-    let income = Transaction.filtered.reduce((acc, transaction) => {
+  incomes(json) {
+    let income = json.reduce((acc, transaction) => {
       if (transaction.amount > 0) {
         acc += transaction.amount;
       }
@@ -198,8 +198,8 @@ const Transaction = {
     return income;
   },
 
-  expenses() {
-    let expense = Transaction.filtered.reduce((acc, transaction) => {
+  expenses(json) {
+    let expense = json.reduce((acc, transaction) => {
       if (transaction.amount < 0) {
         acc += transaction.amount;
       }
@@ -208,8 +208,8 @@ const Transaction = {
     return expense;
   },
 
-  total() {
-    return Transaction.incomes() + Transaction.expenses();
+  total(json) {
+    return Transaction.incomes(json) + Transaction.expenses(json);
   },
 };
 
@@ -228,7 +228,7 @@ const DOM = {
   addTransaction(transaction) {
     const tr = document.createElement("tr");
     tr.innerHTML = DOM.innerHTMLTransaction(transaction);
-    
+
     DOM.transactionsContainer.appendChild(tr);
   },
 
@@ -252,15 +252,15 @@ const DOM = {
     return html;
   },
 
-  updateBalance() {
+  updateBalance(json) {
     document.querySelector("#income-display").innerHTML = Utils.formatCurrency(
-      Transaction.incomes()
+      Transaction.incomes(json)
     );
     document.querySelector("#expense-display").innerHTML = Utils.formatCurrency(
-      Transaction.expenses()
+      Transaction.expenses(json)
     );
     document.querySelector("#total-display").innerHTML = Utils.formatCurrency(
-      Transaction.total()
+      Transaction.total(json)
     );
   },
 
@@ -270,15 +270,15 @@ const DOM = {
 };
 
 const Utils = {
-  maskDate(date){
-    date = date.replace(/\D/g,"");
-    date = date.replace(/(\d{2})(\d)/,"$1/$2");
-    date = date.replace(/(\d{2})(\d)/,"$1/$2");
+  maskDate(date) {
+    date = date.replace(/\D/g, "");
+    date = date.replace(/(\d{2})(\d)/, "$1/$2");
+    date = date.replace(/(\d{2})(\d)/, "$1/$2");
     return date;
   },
 
-  onlyNumbers(date){
-    date = date.replace(/\D/g,"");
+  onlyNumbers(date) {
+    date = date.replace(/\D/g, "");
     return date;
   },
 
@@ -294,11 +294,11 @@ const Utils = {
     return Math.round(value);
   },
 
-  convertStringToDate(date){
+  convertStringToDate(date) {
     return Utils.convertDate(Utils.formatDateEdit(date));
   },
 
-  convertDate(date){
+  convertDate(date) {
     const formatDate = Utils.formatDateEdit(date);
 
     return new Date(formatDate);
@@ -327,6 +327,37 @@ const Utils = {
     });
 
     return signal + value;
+  },
+
+  verifyAllFilters() {
+
+    let dataFiltered = FilterBy.verifyDateFilter();
+
+    dataFiltered = FilterBy.verifyPositiveNegativeCheck(dataFiltered);
+
+    if (OrderBy.descricao.classList.contains("add-arrow-down")) {
+      dataFiltered = OrderBy.filterDescription(dataFiltered);
+    } else if (OrderBy.descricao.classList.contains("add-arrow-up")) {
+      dataFiltered = OrderBy.filterDescription(dataFiltered).reverse();
+    } else if (OrderBy.valor.classList.contains("add-arrow-down")) {
+      dataFiltered = OrderBy.filterAmount(dataFiltered);
+    } else if (OrderBy.valor.classList.contains("add-arrow-up")) {
+      dataFiltered = OrderBy.filterAmount(dataFiltered).reverse();
+    } else if (OrderBy.data.classList.contains("add-arrow-down")) {
+      dataFiltered = OrderBy.filterDate(dataFiltered);
+    } else if (OrderBy.data.classList.contains("add-arrow-up")) {
+      dataFiltered = OrderBy.filterDate(dataFiltered).reverse();
+    } else {
+      dataFiltered = OrderBy.filterId(dataFiltered);
+    }
+
+    dataFiltered = Search.filterTransaction(dataFiltered);
+
+    DOM.updateBalance(dataFiltered);
+    App.reloadFilter(dataFiltered);
+
+    console.log(dataFiltered);
+    console.log("----------");
   },
 };
 
@@ -509,11 +540,11 @@ const Search = {
   input: document.querySelector("#search input"),
 
   addEvent() {
-    Search.input.addEventListener("keyup", Search.verifyFilter);
+    Search.input.addEventListener("keyup", Utils.verifyAllFilters);
   },
 
-  filterTransaction() {
-    Transaction.filtered = Transaction.all.filter((transaction) => {
+  filterTransaction(json) {
+    let jsonfiltered = json.filter((transaction) => {
       if (
         transaction.description
           .toLowerCase()
@@ -523,31 +554,21 @@ const Search = {
         return transaction;
       }
     });
-    return Transaction.filtered;
+    return jsonfiltered;
   },
 
-  verifyFilter() {
-    if (Search.filterTransaction().length !== 0) {
-      Search.render(Search.filterTransaction());
-      DOM.updateBalance();
-    } else {
-      Search.renderNotFound();
-      DOM.updateBalance();
-    }
-  },
+  // render(transactionFilter) {
+  //   DOM.clearTransactions();
 
-  render(transactionFilter) {
-    DOM.clearTransactions();
+  //   transactionFilter.map((transaction) => {
+  //     DOM.addTransaction(transaction);
+  //   });
+  // },
 
-    transactionFilter.map((transaction) => {
-      DOM.addTransaction(transaction);
-    });
-  },
-
-  renderNotFound() {
-    DOM.clearTransactions();
-    DOM.addTransactionNotFound();
-  },
+  // renderNotFound() {
+  //   DOM.clearTransactions();
+  //   DOM.addTransactionNotFound();
+  // },
 
   init() {
     Search.addEvent();
@@ -562,134 +583,88 @@ const OrderBy = {
   countActiveAmount: 0,
   countActiveDate: 0,
 
-  addEvent(){
-    OrderBy.descricao.addEventListener('click', OrderBy.initDescription);
-    OrderBy.valor.addEventListener('click', OrderBy.initAmount);
-    OrderBy.data.addEventListener('click', OrderBy.initDate);
+  addEvent() {
+    OrderBy.descricao.addEventListener("click", OrderBy.initDescription);
+    OrderBy.valor.addEventListener("click", OrderBy.initAmount);
+    OrderBy.data.addEventListener("click", OrderBy.initDate);
   },
 
-  arrowVisible(event){
-    OrderBy.resetClick(event)
-    
-    if(event.target.getAttribute('data-click') == 0){
-      OrderBy.removeClass();
-      event.target.classList.add('add-arrow-down'); 
-      
-      event.target.setAttribute('data-click', '1');
-      OrderBy.checkTypeFilter(event, 1);
-    } 
-    else if(event.target.getAttribute('data-click') == 1){
-      OrderBy.removeClass();
-      event.target.classList.add('add-arrow-up');
+  arrowVisible(event) {
+    OrderBy.resetClick(event);
 
-      event.target.setAttribute('data-click', '2');
-      OrderBy.checkTypeFilter(event, 2);
-    }
-    else if(event.target.getAttribute('data-click') == 2){
+    if (event.target.getAttribute("data-click") == 0) {
       OrderBy.removeClass();
-      
-      event.target.setAttribute('data-click', '0');
-      OrderBy.checkTypeFilter(event, 0);
+      event.target.classList.add("add-arrow-down");
+
+      event.target.setAttribute("data-click", "1");
+    } else if (event.target.getAttribute("data-click") == 1) {
+      OrderBy.removeClass();
+      event.target.classList.add("add-arrow-up");
+
+      event.target.setAttribute("data-click", "2");
+    } else if (event.target.getAttribute("data-click") == 2) {
+      OrderBy.removeClass();
+
+      event.target.setAttribute("data-click", "0");
     }
   },
 
-  resetClick(event){
+  resetClick(event) {
     const elements = [OrderBy.descricao, OrderBy.valor, OrderBy.data];
 
-    elements.map(element => {
-      if(element != event.target){
-        element.setAttribute('data-click', '0');
+    elements.map((element) => {
+      if (element != event.target) {
+        element.setAttribute("data-click", "0");
       }
     });
   },
 
-  removeClass(){
-    OrderBy.descricao.classList.remove('add-arrow-up');
-    OrderBy.descricao.classList.remove('add-arrow-down');
-    OrderBy.valor.classList.remove('add-arrow-up');
-    OrderBy.valor.classList.remove('add-arrow-down');
-    OrderBy.data.classList.remove('add-arrow-up');
-    OrderBy.data.classList.remove('add-arrow-down');
+  removeClass() {
+    OrderBy.descricao.classList.remove("add-arrow-up");
+    OrderBy.descricao.classList.remove("add-arrow-down");
+    OrderBy.valor.classList.remove("add-arrow-up");
+    OrderBy.valor.classList.remove("add-arrow-down");
+    OrderBy.data.classList.remove("add-arrow-up");
+    OrderBy.data.classList.remove("add-arrow-down");
   },
 
-  checkTypeFilter(event, click){
-    switch(event.target.id){
-      case 'descricao':
-        if(click == 1){
-          OrderBy.filterDescription();
-        } 
-        else if(click == 2){
-          OrderBy.filterDescription().reverse();
-        } 
-        else if(click == 0){
-          OrderBy.filterId();
-        } 
-        App.reloadFilter();
-      break;
-      case 'valor':
-        if(click == 1){
-          OrderBy.filterAmount();
-        } 
-        else if(click == 2){
-          OrderBy.filterAmount().reverse();
-        } 
-        else if(click == 0){
-          OrderBy.filterId();
-        } 
-        App.reloadFilter();
-      break;
-      case 'data':
-        if(click == 1){
-          OrderBy.filterDate();
-        } 
-        else if(click == 2){
-          OrderBy.filterDate().reverse();
-        } 
-        else if(click == 0){
-          OrderBy.filterId();
-        } 
-        App.reloadFilter();
-      break;
-    }
+  filterDescription(json) {
+    return json.sort((a, b) => a.description.localeCompare(b.description));
   },
 
-  filterDescription(){
-    Transaction.filtered = Transaction.filtered.sort((a, b) => a.description.localeCompare(b.description));
-    return Transaction.filtered;
-  },
-  
-  filterAmount(){
-    Transaction.filtered = Transaction.filtered.sort((a, b) => (a.amount < b.amount) ? 1 : -1);
-    return Transaction.filtered;
+  filterAmount(json) {
+    return json.sort((a, b) =>
+      a.amount < b.amount ? 1 : -1
+    );
   },
 
-  filterDate(){
-    Transaction.filtered = Transaction.filtered.sort((a, b) => {
+  filterDate(json) {
+    return json.sort((a, b) => {
       aConverted = Utils.convertDate(a.date);
       bConverted = Utils.convertDate(b.date);
 
-      return (aConverted <= bConverted) ? 1 : -1;
+      return aConverted <= bConverted ? 1 : -1;
     });
-    return Transaction.filtered;
   },
 
-  filterId(){
-    Transaction.filtered = Transaction.filtered.sort((a, b) => (a.id > b.id) ? 1 : -1);
-    return Transaction.filtered;
+  filterId(json) {
+    return json.sort((a, b) => (a.id > b.id ? 1 : -1));
   },
 
-  initDescription(event){
+  initDescription(event) {
     OrderBy.arrowVisible(event);
+    Utils.verifyAllFilters();
   },
 
-  initAmount(event){
+  initAmount(event) {
     OrderBy.arrowVisible(event);
+    Utils.verifyAllFilters();
   },
 
-  initDate(event){
+  initDate(event) {
     OrderBy.arrowVisible(event);
+    Utils.verifyAllFilters();
   },
-
 };
 
 const FilterBy = {
@@ -706,184 +681,222 @@ const FilterBy = {
   inputMonthYear2: document.querySelector("#input-month-year-2"),
   inputYear: document.querySelector("#input-year"),
 
-  toggleFilter(event){
+  toggleFilter(event) {
     event.preventDefault();
     FilterBy.options.classList.toggle("active");
   },
-  toggleInitialFinalDate(event){
+  toggleInitialFinalDate(event) {
     event.preventDefault();
     FilterBy.elementInitialFinalDate.classList.toggle("active");
   },
-  toggleMonthYear(event){
+  toggleMonthYear(event) {
     event.preventDefault();
     FilterBy.elementMonthYear.classList.toggle("active");
   },
-  toggleYear(event){
+  toggleYear(event) {
     event.preventDefault();
     FilterBy.elementYear.classList.toggle("active");
   },
-  positiveMoney(){
-    if(!FilterBy.elementPositiveMoney.classList.contains('active-button')){
-      Transaction.filtered = Transaction.filtered.filter(transaction => transaction.amount > 0 ? transaction : false);
+  positiveMoney() {
+    if (!FilterBy.elementPositiveMoney.classList.contains("active-button")) {
       FilterBy.elementPositiveMoney.classList.add("active-button");
       FilterBy.elementNegativeMoney.classList.remove("active-button");
     } else {
       FilterBy.elementPositiveMoney.classList.remove("active-button");
-      Transaction.filtered = Transaction.all;
     }
-    App.reloadFilter();
+    Utils.verifyAllFilters();
   },
-  negativeMoney(){
-    if(!FilterBy.elementNegativeMoney.classList.contains('active-button')){
-      Transaction.filtered = Transaction.filtered.filter(transaction => transaction.amount < 0 ? transaction : false);
+  negativeMoney() {
+    if (!FilterBy.elementNegativeMoney.classList.contains("active-button")) {
       FilterBy.elementNegativeMoney.classList.add("active-button");
       FilterBy.elementPositiveMoney.classList.remove("active-button");
     } else {
       FilterBy.elementNegativeMoney.classList.remove("active-button");
-      Transaction.filtered = Transaction.all;
     }
-    App.reloadFilter();
+    Utils.verifyAllFilters();
   },
-  addRemoveActive(element){
-    if(!element.classList.contains('active')){
+  verifyPositiveNegativeCheck(json) {
+    if (FilterBy.elementPositiveMoney.classList.contains("active-button")) {
+      let jsonfiltered = json.filter((transaction) =>
+        transaction.amount > 0 ? transaction : false
+      );
+      return jsonfiltered;
+    } else if (
+      FilterBy.elementNegativeMoney.classList.contains("active-button")
+    ) {
+      let jsonfiltered = json.filter((transaction) =>
+        transaction.amount < 0 ? transaction : false
+      );
+      return jsonfiltered;
+    } else {
+      return json;
+    }
+  },
+
+  addRemoveActive(element) {
+    if (!element.classList.contains("active")) {
       element.classList.add("active");
     } else {
       element.classList.remove("active");
     }
   },
-  addEventMaskDate(){
-    FilterBy.inputInitialDate.addEventListener('keyup', () => {
+  addEventMaskDate() {
+    FilterBy.inputInitialDate.addEventListener("keyup", () => {
       let valueMask = Utils.maskDate(FilterBy.inputInitialDate.value);
       FilterBy.inputInitialDate.value = valueMask;
-      FilterBy.initialFinalDateFilter();
-      App.reloadFilter();
+      Utils.verifyAllFilters();
     });
-    FilterBy.inputFinalDate.addEventListener('keyup', () => {
+    FilterBy.inputFinalDate.addEventListener("keyup", () => {
       let valueMask = Utils.maskDate(FilterBy.inputFinalDate.value);
       FilterBy.inputFinalDate.value = valueMask;
-      FilterBy.initialFinalDateFilter();
-      App.reloadFilter();
+      Utils.verifyAllFilters();
     });
-    FilterBy.inputMonthYear1.addEventListener('keyup', () => {
+    FilterBy.inputMonthYear1.addEventListener("keyup", () => {
       let valueMask = Utils.onlyNumbers(FilterBy.inputMonthYear1.value);
       FilterBy.inputMonthYear1.value = valueMask;
-      FilterBy.monthYearFilter();
-      App.reloadFilter();
+      Utils.verifyAllFilters();
     });
-    FilterBy.inputMonthYear2.addEventListener('keyup', () => {
+    FilterBy.inputMonthYear2.addEventListener("keyup", () => {
       let valueMask = Utils.onlyNumbers(FilterBy.inputMonthYear2.value);
       FilterBy.inputMonthYear2.value = valueMask;
-      FilterBy.monthYearFilter();
-      App.reloadFilter();
+      Utils.verifyAllFilters();
     });
-    FilterBy.inputYear.addEventListener('keyup', () => {
+    FilterBy.inputYear.addEventListener("keyup", () => {
       let valueMask = Utils.onlyNumbers(FilterBy.inputYear.value);
       FilterBy.inputYear.value = valueMask;
-      FilterBy.yearFilter();
-      App.reloadFilter();
+      Utils.verifyAllFilters();
     });
   },
-  initialFinalDateFilter(){
-    if(FilterBy.inputInitialDate.value.length >= 10){
-      
-      Transaction.filtered = Transaction.filtered.filter(transaction => {
-        let transactionDateFormated = Utils.convertStringToDate(transaction.date);
-        let inputDateFormated = Utils.convertStringToDate(FilterBy.inputInitialDate.value);
-        
-        return transactionDateFormated >= inputDateFormated ? transaction : false;
-      });
-    } else {
-      Transaction.filtered = Transaction.all;
-    }
-    if(FilterBy.inputFinalDate.value.length >= 10){
-      Transaction.filtered = Transaction.filtered.filter(transaction => {
-        let transactionDateFormated = Utils.convertStringToDate(transaction.date);
-        let inputDateFormated = Utils.convertStringToDate(FilterBy.inputFinalDate.value);
-        
-        return transactionDateFormated <= inputDateFormated ? transaction : false;
-      });
-    } else {
-      Transaction.filtered = Transaction.all;
-    }
-    if(FilterBy.inputInitialDate.value.length >= 10 && FilterBy.inputFinalDate.value.length >= 10){
-      Transaction.filtered = Transaction.filtered.filter(transaction => {
-        let transactionDateFormated = Utils.convertStringToDate(transaction.date);
+  initialDateFilter() {
+    let json = Transaction.all.filter((transaction) => {
+      let transactionDateFormated = Utils.convertStringToDate(transaction.date);
+      let inputDateFormated = Utils.convertStringToDate(
+        FilterBy.inputInitialDate.value
+      );
 
-        let inputDateInitialFormated = Utils.convertStringToDate(FilterBy.inputInitialDate.value);
-        let inputDateFinalFormated = Utils.convertStringToDate(FilterBy.inputFinalDate.value);
+      return transactionDateFormated >= inputDateFormated ? transaction : false;
+    });
+    return json;
+  },
+  finalDateFilter() {
+    let json = Transaction.all.filter((transaction) => {
+      let transactionDateFormated = Utils.convertStringToDate(transaction.date);
+      let inputDateFormated = Utils.convertStringToDate(
+        FilterBy.inputFinalDate.value
+      );
 
-        return transactionDateFormated >= inputDateInitialFormated && transactionDateFormated <= inputDateFinalFormated ? transaction : false;
-      });
+      return transactionDateFormated <= inputDateFormated ? transaction : false;
+    });
+    return json;
+  },
+  initialFinalDateFilter() {
+    let json = Transaction.all.filter((transaction) => {
+      let transactionDateFormated = Utils.convertStringToDate(transaction.date);
+
+      let inputDateInitialFormated = Utils.convertStringToDate(
+        FilterBy.inputInitialDate.value
+      );
+      let inputDateFinalFormated = Utils.convertStringToDate(
+        FilterBy.inputFinalDate.value
+      );
+
+      return transactionDateFormated >= inputDateInitialFormated &&
+        transactionDateFormated <= inputDateFinalFormated
+        ? transaction
+        : false;
+    });
+    return json;
+  },
+  monthYearFilter() {
+    let firstDay = new Date(
+      FilterBy.inputMonthYear2.value,
+      FilterBy.inputMonthYear1.value - 1,
+      1
+    );
+    let lastDay = new Date(
+      FilterBy.inputMonthYear2.value,
+      FilterBy.inputMonthYear1.value,
+      0
+    );
+
+    let json = Transaction.all.filter((transaction) => {
+      let transactionDateFormated = Utils.convertStringToDate(transaction.date);
+
+      return transactionDateFormated >= firstDay &&
+        transactionDateFormated <= lastDay
+        ? transaction
+        : false;
+    });
+    return json;
+  },
+  yearFilter() {
+    let firstMonth = new Date(FilterBy.inputYear.value, 0, 1);
+    let lastMonth = new Date(FilterBy.inputYear.value, 12, 0);
+
+    let json = Transaction.all.filter((transaction) => {
+      let transactionDateFormated = Utils.convertStringToDate(transaction.date);
+      // console.log(transactionDateFormated)
+      return transactionDateFormated >= firstMonth &&
+        transactionDateFormated <= lastMonth
+        ? transaction
+        : false;
+    });
+    return json;
+  },
+  verifyDateFilter() {
+    let json = Transaction.all;
+
+    if (
+      FilterBy.inputInitialDate.value.length >= 10 &&
+      FilterBy.inputFinalDate.value.length >= 10
+    ) {
+      return FilterBy.initialFinalDateFilter(json);
+    } else if (FilterBy.inputInitialDate.value.length >= 10) {
+      return FilterBy.initialDateFilter(json);
+    } else if (FilterBy.inputFinalDate.value.length >= 10) {
+      return FilterBy.finalDateFilter(json);
+    } else if (
+      FilterBy.inputMonthYear1.value.length >= 1 &&
+      FilterBy.inputMonthYear2.value.length >= 4
+    ) {
+      return FilterBy.monthYearFilter(json);
+    } else if (FilterBy.inputYear.value.length >= 4) {
+      return FilterBy.yearFilter(json);
     } else {
-      Transaction.filtered = Transaction.all;
+      return json;
     }
   },
-  monthYearFilter(){
-    if(FilterBy.inputMonthYear1.value.length >= 1 && FilterBy.inputMonthYear2.value.length >= 4){
-      let firstDay = new Date(FilterBy.inputMonthYear2.value, FilterBy.inputMonthYear1.value - 1, 1);
-      let lastDay = new Date(FilterBy.inputMonthYear2.value, FilterBy.inputMonthYear1.value, 0);
 
-      Transaction.filtered = Transaction.filtered.filter(transaction => {
-        let transactionDateFormated = Utils.convertStringToDate(transaction.date);
-
-        return transactionDateFormated >= firstDay && transactionDateFormated <= lastDay ? transaction : false
-      });
-    } else {
-      Transaction.filtered = Transaction.all;
-    }
-  },
-  yearFilter(){
-    if(FilterBy.inputYear.value.length >= 4){
-      let firstMonth = new Date(FilterBy.inputYear.value, 0, 1);
-      let lastMonth = new Date(FilterBy.inputYear.value, 12, 0);
-
-      Transaction.filtered = Transaction.filtered.filter(transaction => {
-        let transactionDateFormated = Utils.convertStringToDate(transaction.date);
-
-        return transactionDateFormated >= firstMonth && transactionDateFormated <= lastMonth ? transaction : false
-      });
-    } else {
-      Transaction.filtered = Transaction.all;
-    }
-  },
-  init(){
+  init() {
     FilterBy.addEventMaskDate();
-  }
-}
+  },
+};
 
 const App = {
   init() {
-    Search.init();
-    Search.verifyFilter();
+    Utils.verifyAllFilters();
     OrderBy.addEvent();
-    FilterBy.init();
-
-    // Transaction.all.map((transaction) => {
-    //   DOM.addTransaction(transaction);
-    // });
-
-    DOM.updateBalance();
-
-    Storage.set(Transaction.all);
-      DarkMode.init();
-    },
-
-  reloadFilter(){
-    DOM.clearTransactions();
-    
     Search.init();
+    FilterBy.init();
+    Storage.set(Transaction.all);
+    DarkMode.init();
+  },
 
-    Transaction.filtered.map((transaction) => {
+  reloadFilter(json) {
+    DOM.clearTransactions();
+
+    json.map((transaction) => {
       DOM.addTransaction(transaction);
     });
 
-    DOM.updateBalance();
   },
-  
+
   reload() {
+    // Rever functions ->
+    // App.init();
     DOM.clearTransactions();
-    App.init();
-    Search.verifyFilter();
+    Utils.verifyAllFilters();
+    Storage.set(Transaction.all);
   },
 };
 
