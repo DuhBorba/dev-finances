@@ -91,17 +91,16 @@
           </ul>
         </div>
         <div>
-          <a href="#" class="icon-search" onclick="" title="Limpar filtros"><img src="./assets/clear.svg" alt="Icone clear"></a>
+          <a href="#" class="icon-search" onclick="FilterBy.clearAllInput()" title="Limpar filtros"><img src="./assets/clear.svg" alt="Icone clear"></a>
         </div>
       </div>
       <section id="transaction">
-
         <table id="data-table">
           <thead>
             <tr>
-              <th id="descricao" data-click="0">Descrição</th>
-              <th id="valor" data-click="0">Valor</th>
-              <th id="data" data-click="0">Data</th>
+              <th id="descricao" data-click="0" title="Ordenar por descrição">Descrição</th>
+              <th id="valor" data-click="0" title="Ordenar por valor">Valor</th>
+              <th id="data" data-click="0" title="Ordenar por data">Data</th>
               <th></th>
             </tr>
           </thead>

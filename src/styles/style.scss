@@ -241,6 +241,7 @@ header {
     font-size: 2rem;
     line-height: 3rem;
     margin-top: 1rem;
+    white-space: nowrap;
   }
 }
 
@@ -401,6 +402,7 @@ header {
   }
   td.expense {
     color: var(--red);
+    white-space: nowrap;
   }
   td .remove-icon {
     cursor: pointer;

@@ -330,7 +330,6 @@ const Utils = {
   },
 
   verifyAllFilters() {
-
     let dataFiltered = FilterBy.verifyDateFilter();
 
     dataFiltered = FilterBy.verifyPositiveNegativeCheck(dataFiltered);
@@ -633,9 +632,7 @@ const OrderBy = {
   },
 
   filterAmount(json) {
-    return json.sort((a, b) =>
-      a.amount < b.amount ? 1 : -1
-    );
+    return json.sort((a, b) => (a.amount < b.amount ? 1 : -1));
   },
 
   filterDate(json) {
@@ -742,26 +739,47 @@ const FilterBy = {
   },
   addEventMaskDate() {
     FilterBy.inputInitialDate.addEventListener("keyup", () => {
+      FilterBy.inputMonthYear1.value = "";
+      FilterBy.inputMonthYear2.value = "";
+      FilterBy.inputYear.value = "";
+
       let valueMask = Utils.maskDate(FilterBy.inputInitialDate.value);
       FilterBy.inputInitialDate.value = valueMask;
       Utils.verifyAllFilters();
     });
     FilterBy.inputFinalDate.addEventListener("keyup", () => {
+      FilterBy.inputMonthYear1.value = "";
+      FilterBy.inputMonthYear2.value = "";
+      FilterBy.inputYear.value = "";
+
       let valueMask = Utils.maskDate(FilterBy.inputFinalDate.value);
       FilterBy.inputFinalDate.value = valueMask;
       Utils.verifyAllFilters();
     });
     FilterBy.inputMonthYear1.addEventListener("keyup", () => {
+      FilterBy.inputInitialDate.value = "";
+      FilterBy.inputFinalDate.value = "";
+      FilterBy.inputYear.value = "";
+
       let valueMask = Utils.onlyNumbers(FilterBy.inputMonthYear1.value);
       FilterBy.inputMonthYear1.value = valueMask;
       Utils.verifyAllFilters();
     });
     FilterBy.inputMonthYear2.addEventListener("keyup", () => {
+      FilterBy.inputInitialDate.value = "";
+      FilterBy.inputFinalDate.value = "";
+      FilterBy.inputYear.value = "";
+
       let valueMask = Utils.onlyNumbers(FilterBy.inputMonthYear2.value);
       FilterBy.inputMonthYear2.value = valueMask;
       Utils.verifyAllFilters();
     });
     FilterBy.inputYear.addEventListener("keyup", () => {
+      FilterBy.inputInitialDate.value = "";
+      FilterBy.inputFinalDate.value = "";
+      FilterBy.inputMonthYear1.value = "";
+      FilterBy.inputMonthYear2.value = "";
+
       let valueMask = Utils.onlyNumbers(FilterBy.inputYear.value);
       FilterBy.inputYear.value = valueMask;
       Utils.verifyAllFilters();
@@ -867,6 +885,18 @@ const FilterBy = {
     }
   },
 
+  clearAllInput() {
+    FilterBy.inputInitialDate.value = "";
+    FilterBy.inputFinalDate.value = "";
+    FilterBy.inputMonthYear1.value = "";
+    FilterBy.inputMonthYear2.value = "";
+    FilterBy.inputYear.value = "";
+    FilterBy.elementPositiveMoney.classList.remove("active-button");
+    FilterBy.elementNegativeMoney.classList.remove("active-button");
+
+    App.reload();
+  },
+
   init() {
     FilterBy.addEventMaskDate();
   },
@@ -878,22 +908,23 @@ const App = {
     OrderBy.addEvent();
     Search.init();
     FilterBy.init();
-    Storage.set(Transaction.all);
     DarkMode.init();
+    Storage.set(Transaction.all);
   },
 
   reloadFilter(json) {
     DOM.clearTransactions();
 
-    json.map((transaction) => {
-      DOM.addTransaction(transaction);
-    });
-
+    if (json.length == 0) {
+      DOM.addTransactionNotFound();
+    } else {
+      json.map((transaction) => {
+        DOM.addTransaction(transaction);
+      });
+    }
   },
 
   reload() {
-    // Rever functions ->
-    // App.init();
     DOM.clearTransactions();
     Utils.verifyAllFilters();
     Storage.set(Transaction.all);
