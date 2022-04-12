@@ -886,6 +886,7 @@ const FilterBy = {
   },
 
   clearAllInput() {
+    Search.input.value = "";
     FilterBy.inputInitialDate.value = "";
     FilterBy.inputFinalDate.value = "";
     FilterBy.inputMonthYear1.value = "";
