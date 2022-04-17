@@ -37,7 +37,7 @@ Para o desenvolvimento foi necessário:
 ### Edição
 ![GIF Edição](https://github.com/DuhBorba/dev-finances/blob/main/edit.gif)
 
-### Deleção
+### Exclusão
 ![GIF Deleção](https://github.com/DuhBorba/dev-finances/blob/main/delete.gif)
 
 ### Pesquisa / Filtragem
